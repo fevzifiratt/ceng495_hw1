@@ -3,6 +3,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
+// Define a proper params interface
+interface ItemParams {
+    params: {
+        id: string;
+    }
+}
+
 /**
  * GET /api/items/[id]
  *
@@ -17,7 +24,7 @@ import { ObjectId } from 'mongodb';
  */
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: ItemParams
 ) {
     try {
         const resolvedParams = await params;
@@ -69,7 +76,7 @@ export async function GET(
  */
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: ItemParams
 ) {
     try {
         const resolvedParams = await params;
@@ -190,10 +197,11 @@ async function updateUserRating(db: any, username: string) {
  */
 export async function PUT(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: ItemParams
 ) {
     try {
-        const id = params.id;
+        const resolvedParams = await params;
+        const id = resolvedParams.id;
 
         // Validate ObjectId format
         if (!ObjectId.isValid(id)) {

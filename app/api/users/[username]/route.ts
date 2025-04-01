@@ -3,6 +3,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
+// Define a proper params interface
+interface UserParams {
+    params: {
+        username: string;
+    }
+}
+
 // Helper function to update an item's rating
 async function updateItemRating(db: any, itemId: string) {
     // Get the item with all its reviews
@@ -38,7 +45,7 @@ async function updateItemRating(db: any, itemId: string) {
  */
 export async function GET(
     request: NextRequest,
-    { params }: { params: { username: string } }
+    { params }: UserParams
 ) {
     try {
         // Need to wait for params to be fully resolved
@@ -89,7 +96,7 @@ export async function GET(
  */
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { username: string } }
+    { params }: UserParams
 ) {
     try {
         // Need to wait for params to be fully resolved
@@ -163,7 +170,7 @@ export async function PUT(
  */
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { username: string } }
+    { params }: UserParams
 ) {
     try {
         // Need to wait for params to be fully resolved

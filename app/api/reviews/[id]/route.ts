@@ -2,6 +2,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 
+// Define a proper params interface
+interface ReviewParams {
+    params: {
+        id: string;
+    }
+}
+
 /**
  * GET /api/reviews/[id]
  *
@@ -17,7 +24,7 @@ import clientPromise from '@/lib/mongodb';
  */
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: ReviewParams
 ) {
     try {
         const resolvedParams = await params;
@@ -90,7 +97,7 @@ export async function GET(
  */
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: ReviewParams
 ) {
     try {
         const resolvedParams = await params;
@@ -188,7 +195,7 @@ export async function DELETE(
  */
 export async function PUT(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: ReviewParams
 ) {
     try {
         const resolvedParams = await params;
