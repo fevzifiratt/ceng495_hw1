@@ -129,18 +129,6 @@ export async function POST(req: NextRequest) {
  */
 export async function DELETE(req: NextRequest) {
     try {
-        // Basic security check - require an admin key
-        // In production, use a proper authentication system
-        const adminKey = req.headers.get('x-admin-key');
-        const expectedKey = process.env.ADMIN_DELETE_KEY;
-
-        // Validate admin key
-        if (!adminKey || adminKey !== expectedKey) {
-            return NextResponse.json(
-                { error: 'Unauthorized. Admin key required' },
-                { status: 401 }
-            );
-        }
 
         const client = await clientPromise;
         const db = client.db('CENG495-HW1');
