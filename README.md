@@ -50,5 +50,5 @@ If you are a regular user, you get a ``Profile`` button, which directs you to th
 
 If you are an admin, you get an additional ``Admin`` button which directs you to the admin's management page. I created a main admin page to more proper navigation. From that page, the admin can move to two pages: All the users list, and all the items list. In these lists, the admin can see the details of the users and items. Moreover, the admin can add or remove the users and items as well. If the admin is adding a user, he/she can choose if the new user is also going to be an admin or not.
 
-The URL for Vercel Deployment: https://ceng495hw1-git-main-fevzifiratts-projects.vercel.app/ 
+The URL for Vercel Deployment: https://ceng495hw1.vercel.app/
 
