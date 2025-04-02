@@ -171,8 +171,29 @@ async function updateUserRating(db: any, username: string) {
     // Calculate average rating
     let averageRating = 0;
     if (reviews.length > 0) {
-        const sum = reviews.reduce((total: number, review: any) => total + review.rating, 0);
-        averageRating = parseFloat((sum / reviews.length).toFixed(1));
+        let validRatingsSum = 0;
+        let validRatingsCount = 0;
+
+        // Process each review safely
+        for (const review of reviews) {
+            if (!review) continue;
+
+            let rating;
+            if (typeof review.rating === 'number') {
+                rating = review.rating;
+            } else if (typeof review.rating === 'string') {
+                rating = parseFloat(review.rating);
+            }
+
+            if (typeof rating === 'number' && !isNaN(rating)) {
+                validRatingsSum += rating;
+                validRatingsCount++;
+            }
+        }
+
+        if (validRatingsCount > 0) {
+            averageRating = parseFloat((validRatingsSum / validRatingsCount).toFixed(1));
+        }
     }
 
     // Update the user with the new average rating
@@ -182,80 +203,80 @@ async function updateUserRating(db: any, username: string) {
     );
 }
 
-/**
- * PUT /api/items/[id]
- *
- * Updates a specific item by its ID
- * - Validates the item ID format
- * - Prevents changing the item type
- * - Updates the item fields
- * - Returns the updated item
- *
- * @param req The incoming request object containing update data
- * @param params Route parameters containing the item ID
- * @returns JSON response with the updated item or error message
- */
-export async function PUT(
-    req: NextRequest,
-    { params }: ItemParams
-) {
-    try {
-        const resolvedParams = await params;
-        const id = resolvedParams.id;
-
-        // Validate ObjectId format
-        if (!ObjectId.isValid(id)) {
-            return NextResponse.json(
-                { error: 'Invalid item ID format' },
-                { status: 400 }
-            );
-        }
-
-        const updateData = await req.json();
-
-        // Don't allow changing the item type
-        if (updateData.itemType) {
-            delete updateData.itemType;
-        }
-
-        const client = await clientPromise;
-        const db = client.db('CENG495-HW1');
-
-        // Check if the item exists
-        const existingItem = await db.collection('items').findOne({ _id: new ObjectId(id) });
-
-        if (!existingItem) {
-            return NextResponse.json(
-                { error: 'Item not found' },
-                { status: 404 }
-            );
-        }
-
-        // Update the item
-        const result = await db.collection('items').updateOne(
-            { _id: new ObjectId(id) },
-            { $set: updateData }
-        );
-
-        if (result.modifiedCount === 0) {
-            return NextResponse.json(
-                { error: 'No changes made to the item' },
-                { status: 400 }
-            );
-        }
-
-        // Fetch and return the updated item
-        const updatedItem = await db.collection('items').findOne({ _id: new ObjectId(id) });
-
-        return NextResponse.json({
-            message: 'Item updated successfully',
-            item: updatedItem
-        }, { status: 200 });
-    } catch (error) {
-        console.error('Error updating item:', error);
-        return NextResponse.json(
-            { error: 'Failed to update item' },
-            { status: 500 }
-        );
-    }
-}
+// /**
+//  * PUT /api/items/[id]
+//  *
+//  * Updates a specific item by its ID
+//  * - Validates the item ID format
+//  * - Prevents changing the item type
+//  * - Updates the item fields
+//  * - Returns the updated item
+//  *
+//  * @param req The incoming request object containing update data
+//  * @param params Route parameters containing the item ID
+//  * @returns JSON response with the updated item or error message
+//  */
+// export async function PUT(
+//     req: NextRequest,
+//     { params }: ItemParams
+// ) {
+//     try {
+//         const resolvedParams = await params;
+//         const id = resolvedParams.id;
+//
+//         // Validate ObjectId format
+//         if (!ObjectId.isValid(id)) {
+//             return NextResponse.json(
+//                 { error: 'Invalid item ID format' },
+//                 { status: 400 }
+//             );
+//         }
+//
+//         const updateData = await req.json();
+//
+//         // Don't allow changing the item type
+//         if (updateData.itemType) {
+//             delete updateData.itemType;
+//         }
+//
+//         const client = await clientPromise;
+//         const db = client.db('CENG495-HW1');
+//
+//         // Check if the item exists
+//         const existingItem = await db.collection('items').findOne({ _id: new ObjectId(id) });
+//
+//         if (!existingItem) {
+//             return NextResponse.json(
+//                 { error: 'Item not found' },
+//                 { status: 404 }
+//             );
+//         }
+//
+//         // Update the item
+//         const result = await db.collection('items').updateOne(
+//             { _id: new ObjectId(id) },
+//             { $set: updateData }
+//         );
+//
+//         if (result.modifiedCount === 0) {
+//             return NextResponse.json(
+//                 { error: 'No changes made to the item' },
+//                 { status: 400 }
+//             );
+//         }
+//
+//         // Fetch and return the updated item
+//         const updatedItem = await db.collection('items').findOne({ _id: new ObjectId(id) });
+//
+//         return NextResponse.json({
+//             message: 'Item updated successfully',
+//             item: updatedItem
+//         }, { status: 200 });
+//     } catch (error) {
+//         console.error('Error updating item:', error);
+//         return NextResponse.json(
+//             { error: 'Failed to update item' },
+//             { status: 500 }
+//         );
+//     }
+// }

@@ -112,39 +112,3 @@ export async function POST(req: NextRequest) {
         );
     }
 }
-
-/**
- * DELETE /api/users
- *
- * Deletes all users from the database
- * - WARNING: This is a destructive operation that removes all user records
- * - Requires an admin token/key for authorization (basic implementation)
- * - Returns count of deleted users
- *
- * Request headers:
- * - x-admin-key: string (required for authorization)
- *
- * @param req The incoming request object
- * @returns JSON response with deletion count or error message
- */
-export async function DELETE(req: NextRequest) {
-    try {
-
-        const client = await clientPromise;
-        const db = client.db('CENG495-HW1');
-
-        // Delete all users
-        const result = await db.collection('users').deleteMany({});
-
-        return NextResponse.json({
-            message: 'All users deleted successfully',
-            deletedCount: result.deletedCount
-        }, { status: 200 });
-    } catch (error) {
-        console.error('Error deleting users:', error);
-        return NextResponse.json(
-            { error: 'Failed to delete users' },
-            { status: 500 }
-        );
-    }
-}

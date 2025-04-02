@@ -215,39 +215,3 @@ export async function POST(req: NextRequest) {
         );
     }
 }
-
-/**
- * DELETE /api/items
- *
- * Deletes all items from the database
- * - WARNING: This is a destructive operation that removes all item records
- * - Requires an admin token/key for authorization
- * - Returns count of deleted items
- *
- * Request headers:
- * - x-admin-key: string (required for authorization)
- *
- * @param req The incoming request object
- * @returns JSON response with deletion count or error message
- */
-export async function DELETE(req: NextRequest) {
-    try {
-
-        const client = await clientPromise;
-        const db = client.db('CENG495-HW1');
-
-        // Delete all items
-        const result = await db.collection('items').deleteMany({});
-
-        return NextResponse.json({
-            message: 'All items deleted successfully',
-            deletedCount: result.deletedCount
-        }, { status: 200 });
-    } catch (error) {
-        console.error('Error deleting items:', error);
-        return NextResponse.json(
-            { error: 'Failed to delete items' },
-            { status: 500 }
-        );
-    }
-}

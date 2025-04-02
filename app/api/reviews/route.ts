@@ -2,6 +2,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../auth/[...nextauth]/route';
 
 /**
  * POST /api/reviews
@@ -23,19 +25,37 @@ import { ObjectId } from 'mongodb';
  * @param req The incoming request object containing review data
  * @returns JSON response with the created review or error message
  */
+// Update to app/api/reviews/route.ts POST function
 export async function POST(req: NextRequest) {
     try {
+        // Check for authentication
+        const session = await getServerSession(authOptions);
+        if (!session || !session.user) {
+            return NextResponse.json(
+                { error: 'Authentication required' },
+                { status: 401 }
+            );
+        }
+
         // Parse the request body
         const reviewData = await req.json();
 
-        // Validate required fields
-        const requiredFields = ['itemId', 'username', 'rating', 'comment'];
+        // Validate required fields (comment is no longer required)
+        const requiredFields = ['itemId', 'username', 'rating'];
         const missingFields = requiredFields.filter(field => !reviewData[field]);
 
         if (missingFields.length > 0) {
             return NextResponse.json(
                 { error: `Missing required fields: ${missingFields.join(', ')}` },
                 { status: 400 }
+            );
+        }
+
+        // Ensure the username in the request matches the authenticated user
+        if (reviewData.username !== session.user.name) {
+            return NextResponse.json(
+                { error: 'Cannot create reviews for other users' },
+                { status: 403 }
             );
         }
 
@@ -88,13 +108,6 @@ export async function POST(req: NextRequest) {
             "reviews.username": reviewData.username
         });
 
-        if (existingItemReview) {
-            return NextResponse.json(
-                { error: 'User has already reviewed this item' },
-                { status: 409 }
-            );
-        }
-
         // Create a new review with ID
         const reviewId = new ObjectId().toString();
 
@@ -102,7 +115,8 @@ export async function POST(req: NextRequest) {
             _id: reviewId,
             username: reviewData.username,
             rating: reviewData.rating,
-            comment: reviewData.comment
+            comment: reviewData.comment || "", // Default to empty string if comment is not provided
+            createdAt: new Date()
         };
 
         const userItemReview = {
@@ -110,25 +124,55 @@ export async function POST(req: NextRequest) {
             itemId: reviewData.itemId,
             itemName: item.name,
             rating: reviewData.rating,
-            comment: reviewData.comment
+            comment: reviewData.comment || "", // Default to empty string if comment is not provided
+            createdAt: new Date()
         };
 
-        // Add review to the item!!!!!
+        // If user has already reviewed this item, remove the old review
+        if (existingItemReview) {
+            // Find the existing review ID
+            const existingReview = existingItemReview.reviews.find(
+                (r: any) => r.username === reviewData.username
+            );
+
+            if (existingReview) {
+                const existingReviewId = existingReview._id;
+
+                // Remove the old review from the item
+                await db.collection('items').updateOne(
+                    { _id: new ObjectId(reviewData.itemId) },
+                    { $pull: { reviews: { _id: existingReviewId } as any } }
+                );
+
+                // Remove the old review from the user
+                await db.collection('users').updateOne(
+                    { username: reviewData.username },
+                    { $pull: { itemReviews: { _id: existingReviewId } as any } }
+                );
+            }
+        } else {
+            // If it's a new review, increment the review counts
+            await db.collection('items').updateOne(
+                { _id: new ObjectId(reviewData.itemId) },
+                { $inc: { reviewCount: 1 } }
+            );
+
+            await db.collection('users').updateOne(
+                { username: reviewData.username },
+                { $inc: { reviewCount: 1 } }
+            );
+        }
+
+        // Add the new review to the item
         await db.collection('items').updateOne(
             { _id: new ObjectId(reviewData.itemId) },
-            {
-                $push: { reviews: itemReview as any},
-                $inc: { reviewCount: 1 }
-            }
+            { $push: { reviews: itemReview as any} }
         );
 
-        // Add review to the user!!!!!
+        // Add the new review to the user
         await db.collection('users').updateOne(
             { username: reviewData.username },
-            {
-                $push: { itemReviews: userItemReview as any },
-                $inc: { reviewCount: 1 }
-            }
+            { $push: { itemReviews: userItemReview as any } }
         );
 
         // Update item rating
@@ -138,20 +182,23 @@ export async function POST(req: NextRequest) {
         await updateUserRating(db, reviewData.username);
 
         return NextResponse.json({
-            message: 'Review created successfully',
+            message: existingItemReview
+                ? 'Review updated successfully'
+                : 'Review created successfully',
             review: {
                 _id: reviewId,
                 itemId: reviewData.itemId,
                 itemName: item.name,
                 username: reviewData.username,
                 rating: reviewData.rating,
-                comment: reviewData.comment
+                comment: reviewData.comment || "", // Default to empty string if comment is not provided
+                createdAt: new Date()
             }
         }, { status: 201 });
     } catch (error) {
-        console.error('Error creating review:', error);
+        console.error('Error creating/updating review:', error);
         return NextResponse.json(
-            { error: 'Failed to create review' },
+            { error: 'Failed to create/update review' },
             { status: 500 }
         );
     }
@@ -283,8 +330,29 @@ async function updateItemRating(db: any, itemId: string) {
     // Calculate average rating
     let averageRating = 0;
     if (reviews.length > 0) {
-        const sum = reviews.reduce((total: number, review: any) => total + review.rating, 0);
-        averageRating = parseFloat((sum / reviews.length).toFixed(1));
+        let validRatingsSum = 0;
+        let validRatingsCount = 0;
+
+        // Process each review safely
+        for (const review of reviews) {
+            if (!review) continue;
+
+            let rating;
+            if (typeof review.rating === 'number') {
+                rating = review.rating;
+            } else if (typeof review.rating === 'string') {
+                rating = parseFloat(review.rating);
+            }
+
+            if (typeof rating === 'number' && !isNaN(rating)) {
+                validRatingsSum += rating;
+                validRatingsCount++;
+            }
+        }
+
+        if (validRatingsCount > 0) {
+            averageRating = parseFloat((validRatingsSum / validRatingsCount).toFixed(1));
+        }
     }
 
     // Update the item with the new average rating
@@ -313,8 +381,29 @@ async function updateUserRating(db: any, username: string) {
     // Calculate average rating
     let averageRating = 0;
     if (reviews.length > 0) {
-        const sum = reviews.reduce((total: number, review: any) => total + review.rating, 0);
-        averageRating = parseFloat((sum / reviews.length).toFixed(1));
+        let validRatingsSum = 0;
+        let validRatingsCount = 0;
+
+        // Process each review safely
+        for (const review of reviews) {
+            if (!review) continue;
+
+            let rating;
+            if (typeof review.rating === 'number') {
+                rating = review.rating;
+            } else if (typeof review.rating === 'string') {
+                rating = parseFloat(review.rating);
+            }
+
+            if (typeof rating === 'number' && !isNaN(rating)) {
+                validRatingsSum += rating;
+                validRatingsCount++;
+            }
+        }
+
+        if (validRatingsCount > 0) {
+            averageRating = parseFloat((validRatingsSum / validRatingsCount).toFixed(1));
+        }
     }
 
     // Update the user with the new average rating
