@@ -40,7 +40,7 @@ Then, I added the authentication logic by using ``NextAuth``.
 
 ## FRONTEND
 
-The home page consist of the items listed. A non-authenticated user can see, and filter all the items. Moreover, he/she can see the details of the item with the reviews. However, to see the other pages, the user needs to log in.
+The home page consist of the items listed. A non-authenticated user can see, and filter all the items. Moreover, he/she can see the details of the item with the reviews. The images are not loaded. Therefore, I put a hyperlink, and if the photo is not loaded, I put a default icon ``file.svg``. However, to see the other pages, the user needs to log in.
 
 The login page is same for all regular and admin users. After you log in, in the item details page, you can review that item. As the regulation, you can make multiple reviews where the new one overwrites the old one. You need to rate the item, but you can leave the comment part empty.
 
