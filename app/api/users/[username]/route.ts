@@ -4,7 +4,7 @@ import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
 // Define a proper params interface
-interface UserParams {
+interface RouteParams {
     params: {
         username: string;
     }
@@ -65,12 +65,12 @@ async function updateItemRating(db: any, itemId: string) {
  */
 export async function GET(
     request: NextRequest,
-    { params }: UserParams
+    { params }: RouteParams
 ) {
     try {
-        // Need to wait for params to be fully resolved
-        const resolvedParams = await params;
-        const username = resolvedParams.username;
+        // const username = params.username;
+         const resolvedParams = await params;
+         const username = resolvedParams.username;
 
         const client = await clientPromise;
         const db = client.db('CENG495-HW1');
@@ -109,12 +109,12 @@ export async function GET(
  */
 export async function DELETE(
     request: NextRequest,
-    { params }: UserParams
+    { params }: RouteParams
 ) {
     try {
-        // Need to wait for params to be fully resolved
-        const resolvedParams = await params;
-        const username = resolvedParams.username;
+        const username = params.username;
+        // const resolvedParams = await params;
+        // const username = resolvedParams.username;
 
         const client = await clientPromise;
         const db = client.db('CENG495-HW1');
@@ -178,84 +178,3 @@ export async function DELETE(
         );
     }
 }
-
-// /**
-//  * PUT /api/users/[username]
-//  * Update a specific user
-//  *
-//  * Request body format:
-//  * {
-//  *   "email": string (optional),
-//  *   "name": string (optional),
-//  *   "role": string (optional),
-//  *   "isAdmin": boolean (optional),
-//  *   ... any other user fields to update
-//  * }
-//  *
-//  * Cannot update username
-//  * Returns the updated user object (without password)
-//  */
-// export async function PUT(
-//     request: NextRequest,
-//     { params }: UserParams
-// ) {
-//     try {
-//         // Need to wait for params to be fully resolved
-//         const resolvedParams = await params;
-//         const username = resolvedParams.username;
-//         const updateData = await request.json();
-//
-//         // Don't allow updating the username
-//         if (updateData.username && updateData.username !== username) {
-//             return NextResponse.json(
-//                 { error: 'Cannot change username' },
-//                 { status: 400 }
-//             );
-//         }
-//
-//         const client = await clientPromise;
-//         const db = client.db('CENG495-HW1');
-//         const usersCollection = db.collection('users');
-//
-//         // Find the user first to check if it exists
-//         const user = await usersCollection.findOne({ username });
-//
-//         if (!user) {
-//             return NextResponse.json(
-//                 { error: 'User not found' },
-//                 { status: 404 }
-//             );
-//         }
-//
-//         // Delete username from update data if present
-//         delete updateData.username;
-//
-//         // Update user fields
-//         const result = await usersCollection.updateOne(
-//             { username },
-//             { $set: updateData }
-//         );
-//
-//         // Get the updated user
-//         const updatedUser = await usersCollection.findOne({ username });
-//
-//         // Check if the user exists after update
-//         if (!updatedUser) {
-//             return NextResponse.json(
-//                 { error: 'User not found after update' },
-//                 { status: 404 }
-//             );
-//         }
-//
-//         // Don't return the password
-//         delete updatedUser.password;
-//
-//         return NextResponse.json(updatedUser);
-//     } catch (error) {
-//         console.error(`Failed to update user:`, error);
-//         return NextResponse.json(
-//             { error: 'Internal Server Error' },
-//             { status: 500 }
-//         );
-//     }
-// }
