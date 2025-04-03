@@ -64,7 +64,8 @@ async function updateItemRating(db: any, itemId: string) {
  * Returns the user object (without password)
  */
 export async function GET(
-    { params }: RouteParams
+    request: NextRequest,
+    { params }: { params: { username: string } }
 ) {
     try {
         // const username = params.username;
@@ -107,7 +108,8 @@ export async function GET(
  * Returns a success message if deletion is successful
  */
 export async function DELETE(
-    { params }: RouteParams
+    request: NextRequest,
+    { params }: { params: { username: string } }
 ) {
     try {
         const username = params.username;

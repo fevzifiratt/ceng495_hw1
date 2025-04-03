@@ -19,11 +19,13 @@ interface RouteParams {
  * - Returns 404 if item not found
  *
  * @param req The incoming request object
+ * @param request
  * @param params Route parameters containing the item ID
  * @returns JSON response with the item or error message
  */
 export async function GET(
-    { params }: RouteParams
+    request: NextRequest,
+    { params }: { params: { id: string } }
 ) {
     try {
         // const id = params.id;
@@ -71,11 +73,13 @@ export async function GET(
  * - Returns success message
  *
  * @param req The incoming request object
+ * @param request
  * @param params Route parameters containing the item ID
  * @returns JSON response with success message or error message
  */
 export async function DELETE(
-    { params }: RouteParams
+    request: NextRequest,
+    { params }: { params: { id: string } }
 ) {
     try {
         //const id = params.id;
