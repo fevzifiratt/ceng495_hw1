@@ -7,18 +7,17 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 interface ItemParams {
-    params: {
+    params: Promise<{
         id: string;
-    };
+    }>
 }
 
 // Dynamically generate metadata
 export async function generateMetadata(
-    { params }: ItemParams
+    params: ItemParams
 ): Promise<Metadata> {
     try {
-        const resolvedParams = await params;
-        const item = await getItem(resolvedParams.id);
+        const item = await getItem((await params.params).id);
 
         if (!item) {
             return {
@@ -87,9 +86,8 @@ async function getItem(id: string): Promise<Item | null> {
     }
 }
 
-export default async function ItemPage({ params }: ItemParams) {
-    const resolvedParams = await params;
-    const item = await getItem(resolvedParams.id);
+export default async function ItemPage(params: ItemParams) {
+    const item = await getItem((await params.params).id);
 
     if (!item) {
         notFound();
@@ -103,7 +101,7 @@ export default async function ItemPage({ params }: ItemParams) {
 
     return (
         <Suspense fallback={<div className="container mx-auto p-4 text-center">Loading item details...</div>}>
-            <ItemDetails initialItem={itemForClient} id={resolvedParams.id} />
+            <ItemDetails initialItem={itemForClient} id={(await params.params).id} />
         </Suspense>
     );
 }
