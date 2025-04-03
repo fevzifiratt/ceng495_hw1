@@ -10,7 +10,7 @@ Next.js is the ideal framework for my project because it combines ``TypeScript``
 
 First, I started with creating a database in ``MongoDB``. After I successfully created it, I created a project on ``Vercel``, and cloned it to my local. Then, I started to develop the backend part of the application.
 
-I created two tables: ``users`` and ``items``. I added the necessary fields and created the database by using ``Insomnia``. For both tables, I added an extra record ``ReviewCount`` to calculate the average rating for both users and items easier. For ``reviews``, I did not add an extra table since I tried to use the database as few collections as possible. Instead, I put the original records of the reviews to both relevant user and item. In ``users``, a review contains the relevant ``itemId``, ``itemName``, ``rating``, and ``comment``. In ``items``, it contains the relevant ``username``, ``rating``, and ``comment``. 
+I created two tables: ``users`` and ``items``. I added the necessary fields and created the database by using ``Insomnia``. For both tables, I added an extra record ``ReviewCount`` to calculate the average rating for both users and items easier. For ``reviews``, I did not add an extra table since I tried to use the database as few collections as possible. Instead, I put the original records of the reviews to both relevant user and item. The reviews are both stored in ``users`` and ``items`` as an array. In ``users``, a review contains the relevant ``itemId``, ``itemName``, ``rating``, and ``comment``. In ``items``, it contains the relevant ``username``, ``rating``, and ``comment``. 
 
 Then, I created the endpoints without authentication. Here are the endpoints:
 
@@ -51,4 +51,3 @@ If you are a regular user, you get a ``Profile`` button, which directs you to th
 If you are an admin, you get an additional ``Admin`` button which directs you to the admin's management page. I created a main admin page to more proper navigation. From that page, the admin can move to two pages: All the users list, and all the items list. In these lists, the admin can see the details of the users and items. Moreover, the admin can add or remove the users and items as well. If the admin is adding a user, he/she can choose if the new user is also going to be an admin or not.
 
 The URL for Vercel Deployment: https://ceng495hw1.vercel.app/
-
