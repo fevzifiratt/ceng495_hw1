@@ -64,7 +64,6 @@ async function updateItemRating(db: any, itemId: string) {
  * Returns the user object (without password)
  */
 export async function GET(
-    request: NextRequest,
     { params }: RouteParams
 ) {
     try {
@@ -108,7 +107,6 @@ export async function GET(
  * Returns a success message if deletion is successful
  */
 export async function DELETE(
-    request: NextRequest,
     { params }: RouteParams
 ) {
     try {

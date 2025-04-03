@@ -23,7 +23,6 @@ interface RouteParams {
  * @returns JSON response with the item or error message
  */
 export async function GET(
-    req: NextRequest,
     { params }: RouteParams
 ) {
     try {
@@ -76,7 +75,6 @@ export async function GET(
  * @returns JSON response with success message or error message
  */
 export async function DELETE(
-    req: NextRequest,
     { params }: RouteParams
 ) {
     try {
