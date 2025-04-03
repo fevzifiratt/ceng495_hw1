@@ -5,9 +5,9 @@ import {ObjectId} from 'mongodb';
 
 // Define a proper params interface
 interface RouteParams {
-    params: {
+    params: Promise<{
         username: string;
-    }
+    }>
 }
 
 async function updateItemRating(db: any, itemId: string) {
@@ -68,9 +68,10 @@ export async function GET(
     params: RouteParams
 ) {
     try {
-        const username = params.params.username;
+        // const username = params.params.username;
         // const resolvedParams = await params;
         // const username = resolvedParams.params.username;
+        const username = (await params.params).username;
 
         const client = await clientPromise;
         const db = client.db('CENG495-HW1');
@@ -112,9 +113,10 @@ export async function DELETE(
     params: RouteParams
 ) {
     try {
-        const username = params.params.username;
+        // const username = params.params.username;
         // const resolvedParams = await params;
         // const username = resolvedParams.params.username;
+        const username = (await params.params).username;
 
         const client = await clientPromise;
         const db = client.db('CENG495-HW1');

@@ -5,9 +5,9 @@ import {ObjectId} from 'mongodb';
 
 // Define a proper params interface
 interface RouteParams {
-    params: {
+    params: Promise<{
         id: string;
-    }
+    }>
 }
 
 /**
@@ -27,9 +27,10 @@ export async function GET(
     params: RouteParams
 ) {
     try {
-        const id = params.params.id;
+        // const id = params.params.id;
         //const resolvedParams = await params;
         //const id = resolvedParams.params.id;
+        const id = (await params.params).id;
 
         // Validate ObjectId format
         if (!ObjectId.isValid(id)) {
@@ -80,9 +81,10 @@ export async function DELETE(
     params: RouteParams
 ) {
     try {
-        const id = params.params.id;
+        // const id = params.params.id;
         //const resolvedParams = await params;
         //const id = resolvedParams.params.id;
+        const id = (await params.params).id;
 
         // Validate ObjectId format
         if (!ObjectId.isValid(id)) {
