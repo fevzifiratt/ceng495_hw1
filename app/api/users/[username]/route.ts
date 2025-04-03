@@ -1,7 +1,7 @@
 // app/api/users/[username]/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import {NextRequest, NextResponse} from 'next/server';
 import clientPromise from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
+import {ObjectId} from 'mongodb';
 
 // Define a proper params interface
 interface RouteParams {
@@ -50,8 +50,8 @@ async function updateItemRating(db: any, itemId: string) {
 
     // Update the item with the new average rating
     await db.collection('items').updateOne(
-        { _id: new ObjectId(itemId) },
-        { $set: { rating: averageRating } }
+        {_id: new ObjectId(itemId)},
+        {$set: {rating: averageRating}}
     );
 }
 
@@ -65,23 +65,23 @@ async function updateItemRating(db: any, itemId: string) {
  */
 export async function GET(
     request: NextRequest,
-    { params }: { params: { username: string } }
+    params: RouteParams
 ) {
     try {
-        // const username = params.username;
-         const resolvedParams = await params;
-         const username = resolvedParams.username;
+        const username = params.params.username;
+        // const resolvedParams = await params;
+        // const username = resolvedParams.params.username;
 
         const client = await clientPromise;
         const db = client.db('CENG495-HW1');
         const usersCollection = db.collection('users');
 
-        const user = await usersCollection.findOne({ username });
+        const user = await usersCollection.findOne({username});
 
         if (!user) {
             return NextResponse.json(
-                { error: 'User not found' },
-                { status: 404 }
+                {error: 'User not found'},
+                {status: 404}
             );
         }
 
@@ -92,8 +92,8 @@ export async function GET(
     } catch (error) {
         console.error(`Failed to fetch user:`, error);
         return NextResponse.json(
-            { error: 'Internal Server Error' },
-            { status: 500 }
+            {error: 'Internal Server Error'},
+            {status: 500}
         );
     }
 }
@@ -109,24 +109,24 @@ export async function GET(
  */
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { username: string } }
+    params: RouteParams
 ) {
     try {
-        const username = params.username;
+        const username = params.params.username;
         // const resolvedParams = await params;
-        // const username = resolvedParams.username;
+        // const username = resolvedParams.params.username;
 
         const client = await clientPromise;
         const db = client.db('CENG495-HW1');
         const usersCollection = db.collection('users');
 
         // First, find the user to get their reviews
-        const user = await usersCollection.findOne({ username });
+        const user = await usersCollection.findOne({username});
 
         if (!user) {
             return NextResponse.json(
-                { error: 'User not found' },
-                { status: 404 }
+                {error: 'User not found'},
+                {status: 404}
             );
         }
 
@@ -143,22 +143,22 @@ export async function DELETE(
 
                 // Remove this user's review from the item
                 await db.collection('items').updateOne(
-                    { _id: new ObjectId(review.itemId) },
+                    {_id: new ObjectId(review.itemId)},
                     {
-                        $pull: { reviews: { username: username } as any },
-                        $inc: { reviewCount: -1 }
+                        $pull: {reviews: {username: username} as any},
+                        $inc: {reviewCount: -1}
                     }
                 );
             }
         }
 
         // Delete the user
-        const result = await usersCollection.deleteOne({ username });
+        const result = await usersCollection.deleteOne({username});
 
         if (result.deletedCount === 0) {
             return NextResponse.json(
-                { error: 'Failed to delete user' },
-                { status: 500 }
+                {error: 'Failed to delete user'},
+                {status: 500}
             );
         }
 
@@ -168,13 +168,13 @@ export async function DELETE(
         }
 
         return NextResponse.json(
-            { message: 'User deleted successfully' }
+            {message: 'User deleted successfully'}
         );
     } catch (error) {
         console.error(`Failed to delete user:`, error);
         return NextResponse.json(
-            { error: 'Internal Server Error' },
-            { status: 500 }
+            {error: 'Internal Server Error'},
+            {status: 500}
         );
     }
 }
