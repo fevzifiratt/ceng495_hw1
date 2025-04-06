@@ -11,7 +11,6 @@ type User = {
     isAdmin: boolean;
     averageRating: number;
     reviewCount: number;
-    email?: string;
 };
 
 export default function AdminUsersPage() {

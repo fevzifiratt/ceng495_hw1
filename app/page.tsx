@@ -66,7 +66,6 @@ export default function Home() {
         <main className="container mx-auto px-4 py-8">
           <section className="mb-8">
             <h1 className="text-3xl font-bold mb-4">Welcome to CENG495-HW1 E-Commerce Application</h1>
-            <p className="text-lg">Browse the collection of items</p>
           </section>
 
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -82,7 +81,6 @@ export default function Home() {
       <main className="container mx-auto px-4 py-8">
         <section className="mb-8">
           <h1 className="text-3xl font-bold mb-4">Welcome to CENG495-HW1 E-Commerce Application</h1>
-          <p className="text-lg">Browse the collection of items</p>
         </section>
 
         {/* Add the ItemTypeFilter component */}

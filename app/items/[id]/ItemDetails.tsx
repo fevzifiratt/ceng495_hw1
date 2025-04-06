@@ -120,11 +120,6 @@ export default function ItemDetails({ initialItem, id }: ItemDetailsProps) {
 
     return (
         <div className="container mx-auto p-4">
-            <div className="mb-6">
-                <Link href="/" className="text-indigo-600 hover:underline">
-                    ← Back to items
-                </Link>
-            </div>
 
             {/* White box container for item details */}
             <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
