@@ -76,20 +76,6 @@ export default function AdminDashboard() {
                 </div>
             </div>
 
-            {/* System Stats Section */}
-            <div className="mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
-                <div className="bg-gray-800 p-4">
-                    <h2 className="text-xl font-bold text-white">System Information</h2>
-                </div>
-                <div className="p-6">
-                    <p className="text-gray-700">
-                        Logged in as: <span className="font-semibold">{session?.user?.name}</span>
-                    </p>
-                    <p className="text-gray-700 mt-2">
-                        Role: <span className="font-semibold">Administrator</span>
-                    </p>
-                </div>
-            </div>
         </div>
     );
 }
