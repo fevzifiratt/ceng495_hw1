@@ -35,7 +35,7 @@ GET ``api/reviews``: Retrieve reviews by filtering with respect to the user, or 
 POST ``api/reviews``: Create a new review which is added to both item and user.
 
 ``api/auth/[..nextauth]``: Helper for the NextAuth. Handles GET and POST requests.
-
+ 
 Then, I added the authentication logic by using ``NextAuth``.
 
 ## FRONTEND
